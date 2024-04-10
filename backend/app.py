@@ -11,7 +11,7 @@ CORS(app, support_credentials=True)
 
 
 # Replace with your MongoDB connection string
-mongo_uri = 'mongodb+srv://Siddartha:JmYcfrpYIOm4YOBP@clustersid.jmxh0db.mongodb.net/'
+mongo_uri = ''
 client = MongoClient(mongo_uri)
 db = client.get_database("votingsystem")  # Specify the database name
 
