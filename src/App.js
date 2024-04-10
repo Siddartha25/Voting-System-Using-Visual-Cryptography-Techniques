@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Loginpage from './components/Loginpage';
 import Mydetails from './components/Mydetails';
 import Authenticate from './components/Authenticate';
+import Votingpage from './components/Votingpage';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
               <Route path="/login" element={<Loginpage></Loginpage>}></Route>
               <Route path="/mydata" element={<Mydetails></Mydetails>}></Route>
               <Route path="/vote" element={<Authenticate></Authenticate>}></Route>
+              <Route path="/votenow" element={<Votingpage></Votingpage>}></Route>
             </Routes>
           </div>
         </BrowserRouter>

@@ -93,6 +93,36 @@ def login():
     else:
         return jsonify({"success":success,"error": "Request content type must be application/json"}), 415
 
+
+@app.route("/votenow", methods=["POST"])
+def votenow():
+    success=0
+    if request.is_json:
+        data = request.get_json()
+
+        try:
+            # Validate presence of required fields
+            required_fields = {"aadharno", "team"}
+            if not required_fields.issubset(data.keys()):
+                return jsonify({"error": "Missing required fields in JSON data"}), 400
+
+            # Find user in the vote collection
+            existing_user = db.votes.find_one({"aadharno": data["aadharno"]})
+            if existing_user:
+                return jsonify({"success":success,"error": "Duplicate Aadhaar number found"}), 409
+            
+            votetable_data={"aadharno":data["aadharno"],"team":data["team"]}
+            db.votes.insert_one(votetable_data)
+
+            success=1
+            return jsonify({"success":success,"aadharno": data["aadharno"],"message": "Vote successful!"}), 200
+
+        except Exception as e:
+            return jsonify({"success":success,"error": f"Error processing login: {e}"}), 500
+    else:
+        return jsonify({"success":success,"error": "Request content type must be application/json"}), 415
+
+
 @app.route("/mydetails", methods=["POST"])
 def mydetails():
     success=0
@@ -173,7 +203,37 @@ def decrypt(shares):
         shares[-1,:,:] = (shares[-1,:,:]-shares[i,:,:]-256)%256
     return shares[-1,:,:]
 
+def compare_image_similarity(image1, image2):
+    """
+    Compares the similarity of two images using histogram correlation.
 
+    Args:
+        image1 (np.ndarray): First image as a NumPy array.
+        image2 (np.ndarray): Second image as a NumPy array.
+
+    Returns:
+        float: A value between 0 (completely dissimilar) and 1 (identical)
+            indicating the similarity of the images.
+    """
+
+    # Convert to grayscale if necessary
+    if len(image1.shape) == 3:
+        image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
+    if len(image2.shape) == 3:
+        image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
+
+    # Calculate histograms
+    hist1 = cv2.calcHist([image1], [0], None, [256], [0, 256])
+    hist2 = cv2.calcHist([image2], [0], None, [256], [0, 256])
+
+    # Normalize histograms for better comparison
+    cv2.normalize(hist1, hist1, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
+    cv2.normalize(hist2, hist2, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
+
+    # Compare histograms using correlation
+    metric_val = cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
+
+    return metric_val
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -218,50 +278,89 @@ def upload_file():
         base64_string = base64.b64encode(buffer.tobytes()).decode("utf-8")
         db.admin.update_one({"aadharno": aadharno}, {"$set": {"imagestring": base64_string}})
         
+        return jsonify({"message": "File uploaded successfully after decrypting","success":True})
         
 #takes 2 images and authenticates
 @app.route('/authenticate', methods=['POST'])
 def auth():
-    if 'file1' not in request.files:
+    if 'file' not in request.files:
         return 'No file part'
     # file = request.files['file']
-    file1 = request.files['file1']
-    file2 = request.files['file2']
-    if file1.filename == '':
+    file = request.files['file']
+    if file.filename == '':
         return 'No selected file'
-    if file1:
+    if file:
         aadharno=request.form.get("aadharno")
-        image_orginal = file1.read()  #this is the actual fingerprint
-        np_array_org = np.frombuffer(image_orginal, np.uint8)  
-        image_orginal = cv2.imdecode(np_array_org, cv2.IMREAD_COLOR)
+        image_data = file.read()  #image data is sequence of bytes
+        np_array = np.frombuffer(image_data, np.uint8)  
+        
+        image_np = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
         #convert to grayscale
-        image_orginal = cv2.cvtColor(image_orginal, cv2.COLOR_BGR2GRAY)
-        
-        cv2.imwrite('uploads/input_image'+'.png', image_orginal)
-        
-        
-        admin = db.admin.find_one({"aadharno": aadharno})
-        base64_string_admin=admin["imagestring"]
-        decoded_bytes = base64.b64decode(base64_string_admin)
-        # Convert bytes back to a numpy array
-        np_array1 = np.frombuffer(decoded_bytes, np.uint8)
-        # Decode the image using OpenCV
-        image_np1 = cv2.imdecode(np_array1, cv2.IMREAD_GRAYSCALE)
+        image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite('uploads/org_image'+'.png', image_np)
         
         
-        image_data2 = file2.read()  #this is the share uploaded by the user
-        np_array2 = np.frombuffer(image_data2, np.uint8)  
-        image_np2 = cv2.imdecode(np_array2, cv2.IMREAD_COLOR)
-
-        final_image = decrypt([image_np1,image_np2])
-
+        
+        temp1 = db.user.find_one({"aadharno": aadharno})
+        temp2 = db.admin.find_one({"aadharno": aadharno})
+        
+        base64_share1=temp1["imagestringuser"]
+        base64_share2=temp2["imagestring"]
+        
+        #converting both the base64 into numpy arrays
+        decoded_bytes1 = base64.b64decode(base64_share1)
+        np_array1 = np.frombuffer(decoded_bytes1, np.uint8)
+        image_share1 = cv2.imdecode(np_array1, cv2.IMREAD_GRAYSCALE)  
+        
+        
+        decoded_bytes2 = base64.b64decode(base64_share2)
+        np_array2 = np.frombuffer(decoded_bytes2, np.uint8)
+        image_share2 = cv2.imdecode(np_array2, cv2.IMREAD_GRAYSCALE)  
+        
+        shares=np.array([image_share1,image_share2])
+        
+        final_image = decrypt(shares)
         cv2.imwrite('uploads/final_image'+'.png', final_image)
         
+        similarity_score=compare_image_similarity(final_image,image_np)
         
+        print(f"Similarity Score: ", similarity_score)
         
+        return jsonify({"message": "File uploaded successfully after decrypting","similarity":similarity_score})
 
 
-        return jsonify({"message": "File uploaded successfully after decrypting"})
+
+@app.route("/getshares", methods=["POST"])
+def getshares():
+    success=0
+    if request.is_json:
+        data = request.get_json()
+
+        try:
+            # Validate presence of required fields
+            required_fields = {"aadharno"}
+            if not required_fields.issubset(data.keys()):
+                return jsonify({"error": "Missing required fields in JSON data"}), 400
+
+            # Find user in the signup collection
+            user1 = db.user.find_one({"aadharno": data["aadharno"]})
+            user2 = db.admin.find_one({"aadharno": data["aadharno"]})
+            
+
+            if user2:
+                success=1
+                return jsonify({"success":success,
+                                "aadharno": data["aadharno"],
+                                "imagestringuser":user1["imagestringuser"],
+                                "imagestring":user2["imagestring"],}), 200
+            else:
+                return jsonify({"success":success,"error": "Invalid Aadhaar number"}), 401
+        except Exception as e:
+            return jsonify({"success":success,"error": f"Error processing login: {e}"}), 500
+    else:
+        return jsonify({"success":success,"error": "Request content type must be application/json"}), 415
+
+
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ function Login() {
         if (json.success){
             // Save the auth token and redirect
             localStorage.setItem('token', json.aadharno); 
-            alert("You have succesfully logged in")
+            alert("You have succesfully Signed in")
             navigate("/");
         }
         else{
@@ -33,20 +33,42 @@ function Login() {
 
   return (
     <>
-     <h1>Signup</h1>
-        <form onSubmit={handleSubmit}>
-            <label for="name">Name:</label><br/>
-            <input type="text" id="name" name="name" required value={credentials.name} onChange={onChange} /><br/>
-            <label for="dob">Date of Birth:</label><br/>
-            <input type="date" id="dob" name="dob" required value={credentials.dob} onChange={onChange} /><br/>
-            <label for="address">Address:</label><br/>
-            <input type="text" id="address" name="address" required value={credentials.address} onChange={onChange} /><br/>
-            <label for="aadharno">Aadhaar No:</label><br/>
-            <input type="text" id="aadharno" name="aadharno" required value={credentials.aadharno} onChange={onChange} /><br/>
-            <label for="password">Password</label><br/>
-            <input type="password" id="password" name="password" required value={credentials.password} onChange={onChange} /><br/>
-            <button type="submit">Signup</button>
-        </form>
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                <h1 class="text-center">Signup</h1>
+                <form class="card shadow-sm p-4" onSubmit={handleSubmit}>
+                    <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" required value={credentials.name} onChange={onChange} />
+                    </div>
+
+                    <div class="mb-3">
+                    <label for="dob" class="form-label">Date of Birth:</label>
+                    <input type="date" class="form-control" id="dob" name="dob" required value={credentials.dob} onChange={onChange} />
+                    </div>
+
+                    <div class="mb-3">
+                    <label for="address" class="form-label">Address:</label>
+                    <input type="text" class="form-control" id="address" name="address" required value={credentials.address} onChange={onChange} />
+                    </div>
+
+                    <div class="mb-3">
+                    <label for="aadharno" class="form-label">Aadhaar No:</label>
+                    <input type="text" class="form-control" id="aadharno" name="aadharno" required value={credentials.aadharno} onChange={onChange} />
+                    </div>
+
+                    <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" class="form-control" id="password" name="password" required value={credentials.password} onChange={onChange} />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Signup</button>
+                </form>
+                </div>
+            </div>
+        </div>
+
     </>
   )
 }

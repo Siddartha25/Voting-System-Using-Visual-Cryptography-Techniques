@@ -27,69 +27,52 @@ function Mydetails() {
         // console.log(userdata)
     }, []);
     let temp=`data:format/png;base64,${userdata.imagestring}`
-    console.log(userdata)
-    // const handleDownloadClick = () => {
-    //     const contentType = 'image/png';  // Specify content type for JPG
-    //     const base64Data = temp.split(',')[1]; // Remove data:image/jpeg;base64, prefix
-    //     const byteString = atob(base64Data);
-    //     const mimeString = contentType;
-    
-    //     const blob = new Blob([new Uint8Array(byteString)], { type: mimeString });
-    //     const link = document.createElement('a');
-    //     link.href = URL.createObjectURL(blob);
-    //     link.setAttribute('download', 'image.png'); // Ensure .jpg extension
-    //     link.click();
-    //   };
-    const handleDownloadClick = () => {
-        const contentType = 'image/png';
-        const base64Data = temp.split(',')[1]; // Remove prefix
-        const byteString = atob(base64Data);
-        const mimeString = contentType;
-    
-        const blob = new Blob([new Uint8Array(byteString)], { type: mimeString });
-        saveAs(blob, 'image.png');  // Use file-saver for download
-      };
+    // console.log(userdata)
   return (
     <>
-        {/* <form> */}
-            <div class="mb-3">
-                <label for="aadharno" >Aadhar Number</label>
-                <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" value={userdata.aadharno} readOnly />
+            <div class="container my-4">
+                <div class="card card-body shadow-sm p-4">
+                    <h2 class="text-center mb-4">User Information</h2>
+
+                    <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="aadharno" class="form-label">Aadhar Number</label>
+                        <input type="text" class="form-control" id="aadharno" aria-describedby="aadharHelp" value={userdata.aadharno} readOnly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" value={userdata.name} readOnly />
+                    </div>
+                    </div>
+
+                    <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="text" class="form-control" value={userdata.dob} readOnly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" value={userdata.address} readOnly />
+                    </div>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="name" >Name</label>
-                <input type="text" class="form-control" id="exampleInputPassword1" value={userdata.name} readOnly/>
-            </div>
-            <div class="mb-3 form-check">
-                <label >Date Of Birth</label>
-                <input type="text" class="form-control" id="exampleInputPassword1" value={userdata.dob} readOnly/>
-            </div>
-            <div class="mb-3 form-check">
-                <label >Address</label>
-                <input type="text" class="form-control" id="exampleInputPassword1" value={userdata.address} readOnly/>
-            </div>
+
             
             {userdata["imagestring"]===""?
                 <>
                  <Uploadimage></Uploadimage>
                 </>
                 :
-                <><img src={temp} alt="image from base64" />
-                    <button onClick={handleDownloadClick}>Download</button></>}
+                <><div class="text-center">
+                    <h4>The Share Embeded In Your Voter Id:</h4>
+                    <img src={temp} alt="image from base64" />
+                </div></>}
             
-        {/* </form> */}
     </>
   )
 }
-{/* <>
-                    <h1>Upload Image</h1>
-                    <form action="http://localhost:5000/upload" method="POST" enctype="multipart/form-data">
-                        <label for="image">Select Image:</label>
-                        <input type="file" name="file" id="file" accept="image/*"/>
-                        <input type="text" name="aadharno" id="aadharno" value={localStorage.getItem('token')} readOnly style={{display:"none"}}/>
-                        <br/>
-                        <button type="submit">Upload</button>
-                    </form></>  */}
-
 
 export default Mydetails

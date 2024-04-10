@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
 
 const Uploadauthenticationimage = () => {
+
+  
+
   let navigate = useNavigate();
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -11,8 +14,7 @@ const Uploadauthenticationimage = () => {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append('file1', selectedImage);
-    formData.append('file2', selectedImage);
+    formData.append('file', selectedImage);
     formData.append('aadharno', aadharno);
     // console.log("hi")
     // console.log(formData)
@@ -24,15 +26,19 @@ const Uploadauthenticationimage = () => {
       });
       const data = await response.json();
       if(data){
-        window.location.reload();
+        // console.log(data)
+        if(data.similarity>0.8){
+          alert(`Your Similarity Score is ${data.similarity}, Now You will be redirected to voting Page`)
+          navigate("/votenow");
+        }
+        else{
+          alert(`Your Similarity Score is ${data.similarity}, Please Upload Again`)
+        }
       }
     } catch (error) {
       console.error('Error uploading image:', error);
       // Handle errors during upload
     }
-    
-    
-
   };
 
   const handleImageChange = (event) => {
@@ -40,17 +46,23 @@ const Uploadauthenticationimage = () => {
   };
 
   return (
-    <div>
-      <h1>Upload Image</h1>
-      <form onSubmit={handleSubmit} enctype="multipart/form-data">
-        <label htmlFor="image">Upload your fingerprint :</label>
-        <input type="file" name="file1" id="file1" accept="image/*" onChange={handleImageChange} />
-        <label htmlFor="image">Upload your Share :</label>
-        <input type="file" name="file2" id="file2" accept="image/*" onChange={handleImageChange} />
-        <input type="text" name="aadharno" id="aadharno" value={aadharno} readOnly style={{ display: "none" }} />
-        <br />
-        <button type="submit">Upload</button>
-      </form>
+    <div id="add" class="container my-4">
+          <div class="card card-body shadow-sm p-4">
+            <h1 class="text-center mb-4">Upload Fingerprint Image</h1>
+
+            <form onSubmit={handleSubmit} enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="image" class="form-label">Please Enter Scan Your Fingerprint:</label>
+                <input type="file" name="file" id="file" accept="image/*" class="form-control" onChange={handleImageChange} />
+              </div>
+
+              <input type="text" name="aadharno" id="aadharno" value={aadharno} readOnly class="form-control" style={{ display: "none" }} />
+
+              <div class="d-grid gap-2 my-4">
+                <button type="submit" class="btn btn-primary">Upload</button>
+              </div>
+            </form>
+          </div>
     </div>
   );
 };

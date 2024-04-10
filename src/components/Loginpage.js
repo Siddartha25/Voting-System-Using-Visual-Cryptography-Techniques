@@ -33,14 +33,15 @@ function Loginpage() {
 
   return (
     <>
-     <h1>Signup</h1>
+     <h1>Login</h1>
         <form onSubmit={handleSubmit}>
-            <label for="aadharno">Aadhaar No:</label><br/>
-            <input type="text" id="aadharno" name="aadharno" required value={credentials.aadharno} onChange={onChange} /><br/>
-            <label for="password">Password</label><br/>
-            <input type="password" id="password" name="password" required value={credentials.password} onChange={onChange} /><br/>
-            <button type="submit">Login</button>
+            <label for="aadharno" class="form-label">Aadhaar No:</label>
+            <input type="text" class="form-control" id="aadharno" name="aadharno" aria-describedby="emailHelp" required value={credentials.aadharno} onChange={onChange} /><br/>
+            <label for="exampleInputPassword1" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required value={credentials.password} onChange={onChange} /><br/>
+            <button type="submit" class="btn btn-primary">Login</button>
         </form>
+        
     </>
   )
 }

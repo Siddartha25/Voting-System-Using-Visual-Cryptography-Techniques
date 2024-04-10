@@ -39,16 +39,24 @@ const Uploadimage = () => {
   };
 
   return (
-    <div>
-      <h1>Upload Image</h1>
-      <form onSubmit={handleSubmit} enctype="multipart/form-data">
-        <label htmlFor="image">Select Image:</label>
-        <input type="file" name="file" id="file" accept="image/*" onChange={handleImageChange} />
-        <input type="text" name="aadharno" id="aadharno" value={aadharno} readOnly style={{ display: "none" }} />
-        <br />
-        <button type="submit">Upload</button>
-      </form>
-    </div>
+    <div class="container my-4">
+        <div class="card card-body shadow-sm p-4">
+          <h1 class="text-center mb-4">Upload Image</h1>
+
+          <form onSubmit={handleSubmit} enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="image" class="form-label">Select Image:</label>
+              <input type="file" name="file" id="file" accept="image/*" class="form-control" onChange={handleImageChange} />
+            </div>
+
+            <input type="text" name="aadharno" id="aadharno" value={aadharno} readOnly class="form-control" style={{ display: "none" }} />
+
+            <div class="d-grid gap-2 my-4">
+              <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+          </form>
+        </div>
+  </div>
   );
 };
 
