@@ -1,4 +1,4 @@
-**This project is done with the intention of developing a fair and untamperable voting system using visual stegangography techniques, this was achieved by using concepts of secret shares ie the information of the voter is converted into an pixelated image and is divided into different shares and the vote of a voter will be registered only if all of these shares are brought together to verify te voter. This ensures that even if a single party such as a compromised election commison wants to tamper the votes it cannot be done without involving the voters.  **
+**This project is done with the intention of developing a fair and untamperable voting system using visual stegangography techniques, this was achieved by using concepts of secret shares ie the information of the voter is converted into an pixelated image and is divided into different shares and the vote of a voter will be registered only if all of these shares are brought together to verify te voter. This ensures that even if a single party such as a compromised election commison wants to tamper the votes it cannot be done without involving the voters.**
 
 
 # Getting Started with Create React App
